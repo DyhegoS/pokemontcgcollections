@@ -1,5 +1,6 @@
 package com.reginasoft.pokemontcg.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.reginasoft.pokemontcg.entities.Trade;
+import com.reginasoft.pokemontcg.entities.enums.TradeStatus;
 import com.reginasoft.pokemontcg.repositories.TradeRepository;
 
 @Service
@@ -22,5 +24,12 @@ public class TradeService {
 	public Trade findById(Long id) {
 		Optional<Trade> obj = tradeRepository.findById(id);
 		return obj.get();
+	}
+	
+	public Trade RequestTrade(Trade trade) {
+		trade.setInitialDate(Instant.now());
+		trade.setTradeConfirmed(false);
+		trade.setTradeStatus(TradeStatus.PENDING);
+		return tradeRepository.save(trade);
 	}
 }
