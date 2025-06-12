@@ -1,44 +1,38 @@
 package com.reginasoft.pokemontcg.entities;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tb_user")
-public class User implements Serializable{
+@Table(name = "tb_card_collections")
+public class CardCollections implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	private String email;
-	private String password;
 	
-	@JsonIgnore
-	@OneToMany(mappedBy = "user")
-	private List<CardCollections> cardCollections = new ArrayList<>();
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 	
-	public User() {
+	public CardCollections() {
 	}
 
-	public User(Long id, String name, String email, String password) {
+	public CardCollections(Long id, String name, User user) {
 		super();
 		this.id = id;
 		this.name = name;
-		this.email = email;
-		this.password = password;
+		this.user = user;
 	}
 
 	public Long getId() {
@@ -57,30 +51,17 @@ public class User implements Serializable{
 		this.name = name;
 	}
 
-	public String getEmail() {
-		return email;
+	public User getUser() {
+		return user;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	
-	
-	public List<CardCollections> getCardCollections() {
-		return cardCollections;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(id, name);
 	}
 
 	@Override
@@ -91,7 +72,9 @@ public class User implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		User other = (User) obj;
-		return Objects.equals(id, other.id);
+		CardCollections other = (CardCollections) obj;
+		return Objects.equals(id, other.id) && Objects.equals(name, other.name);
 	}
+
+	
 }
