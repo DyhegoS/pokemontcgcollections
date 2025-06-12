@@ -1,18 +1,23 @@
 package com.reginasoft.pokemontcg.entities;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tb_card_collections")
+@Table(name = "tb_cardcollections")
 public class CardCollections implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
@@ -24,6 +29,10 @@ public class CardCollections implements Serializable{
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+	
+	@JsonIgnore
+	@ManyToMany(mappedBy = "cardCollections")
+	private Set<Card> card = new HashSet<>();
 	
 	public CardCollections() {
 	}
@@ -57,6 +66,10 @@ public class CardCollections implements Serializable{
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+	
+	public Set<Card> getCard() {
+		return card;
 	}
 
 	@Override
