@@ -2,18 +2,22 @@ package com.reginasoft.pokemontcg.entities;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import com.reginasoft.pokemontcg.entities.enums.TradeStatus;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,36 +28,36 @@ public class Trade implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	@Enumerated(EnumType.STRING)
 	private TradeStatus tradeStatus;
-	private Instant initialDate;
-	private Instant endDate;
+	private Instant createdAt;
+	private Instant updateAt;
 	
-	@ManyToOne
-	private User userOffer;
+	@ManyToOne(optional = false)
+	private User userProposer;
 	
-	@ManyToOne
+	@ManyToOne(optional = false)
 	private User userReceiver;
 	
-	@ManyToMany
-	@JoinTable(name = "trade_card_userOffer")
-	private List<Card> cardUserOffer;
+	@OneToMany(mappedBy = "trade", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TradeItem> userProposerItems = new ArrayList<>();
 	
-	@ManyToMany
-	@JoinTable(name = "trade_card_userReceiver")
-	private List<Card> cardUserReceiver;
-	
-	private boolean tradeConfirmed = false;
-	
+	@OneToMany(mappedBy = "trade", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TradeItem> userReceiverItems = new ArrayList<>();
 	
 	public Trade() {
 	}
 
-	public Trade(Long id, TradeStatus tradeStatus, Instant initialDate, Instant endDate, User userOffer, User userReceiver) {
+	public Trade(Long id, TradeStatus tradeStatus, Instant createdAt, Instant updateAt, User userProposer,
+			User userReceiver) {
 		super();
 		this.id = id;
 		this.tradeStatus = tradeStatus;
-		this.initialDate = initialDate;
-		this.endDate = endDate;
+		this.createdAt = createdAt;
+		this.updateAt = updateAt;
+		this.userProposer = userProposer;
+		this.userReceiver = userReceiver;
 	}
 
 	public Long getId() {
@@ -72,28 +76,28 @@ public class Trade implements Serializable{
 		this.tradeStatus = tradeStatus;
 	}
 
-	public Instant getInitialDate() {
-		return initialDate;
+	public Instant getCreatedAt() {
+		return createdAt;
 	}
 
-	public void setInitialDate(Instant initialDate) {
-		this.initialDate = initialDate;
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
 	}
 
-	public Instant getEndDate() {
-		return endDate;
+	public Instant getUpdateAt() {
+		return updateAt;
 	}
 
-	public void setEndDate(Instant endDate) {
-		this.endDate = endDate;
+	public void setUpdateAt(Instant updateAt) {
+		this.updateAt = updateAt;
 	}
 
-	public User getUserOffer() {
-		return userOffer;
+	public User getUserProposer() {
+		return userProposer;
 	}
 
-	public void setUserOffer(User userOffer) {
-		this.userOffer = userOffer;
+	public void setUserProposer(User userProposer) {
+		this.userProposer = userProposer;
 	}
 
 	public User getUserReceiver() {
@@ -104,33 +108,27 @@ public class Trade implements Serializable{
 		this.userReceiver = userReceiver;
 	}
 
-	public List<Card> getCardUserOffer() {
-		return cardUserOffer;
+	public List<TradeItem> getUserProposerItems() {
+		return userProposerItems;
 	}
 
-	public void setCardUserOffer(List<Card> cardUserOffer) {
-		this.cardUserOffer = cardUserOffer;
+	public List<TradeItem> getUserReceiverItems() {
+		return userReceiverItems;
 	}
-
-	public List<Card> getCardUserReceiver() {
-		return cardUserReceiver;
+	
+	@PrePersist
+	protected void onCreate() {
+		createdAt = Instant.now();
+		updateAt = Instant.now();
 	}
-
-	public void setCardUserReceiver(List<Card> cardUserReceiver) {
-		this.cardUserReceiver = cardUserReceiver;
-	}
-
-	public boolean isTradeConfirmed() {
-		return tradeConfirmed;
-	}
-
-	public void setTradeConfirmed(boolean tradeConfirmed) {
-		this.tradeConfirmed = tradeConfirmed;
+	
+	protected void onUpdate() {
+		updateAt = Instant.now();
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(endDate, id, initialDate, tradeStatus);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -142,7 +140,6 @@ public class Trade implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Trade other = (Trade) obj;
-		return Objects.equals(endDate, other.endDate) && Objects.equals(id, other.id)
-				&& Objects.equals(initialDate, other.initialDate) && tradeStatus == other.tradeStatus;
+		return Objects.equals(id, other.id);
 	}
 }
