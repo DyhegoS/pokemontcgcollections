@@ -36,9 +36,8 @@ public class TradeItem {
 	public TradeItem() {
 	}
 
-	public TradeItem(Long id, Trade trade, Card card, CardCollections cardCollections, TradeSide userSide) {
+	public TradeItem(Trade trade, Card card, CardCollections cardCollections, TradeSide userSide) {
 		super();
-		this.id = id;
 		this.trade = trade;
 		this.card = card;
 		this.cardCollections = cardCollections;

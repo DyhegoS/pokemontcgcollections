@@ -49,13 +49,12 @@ public class Trade implements Serializable{
 	public Trade() {
 	}
 
-	public Trade(Long id, TradeStatus tradeStatus, Instant createdAt, Instant updateAt, User userProposer,
-			User userReceiver) {
+	public Trade(Long id, TradeStatus tradeStatus, User userProposer, User userReceiver) {
 		super();
 		this.id = id;
 		this.tradeStatus = tradeStatus;
-		this.createdAt = createdAt;
-		this.updateAt = updateAt;
+		this.createdAt = Instant.now();
+		this.updateAt = Instant.now();
 		this.userProposer = userProposer;
 		this.userReceiver = userReceiver;
 	}

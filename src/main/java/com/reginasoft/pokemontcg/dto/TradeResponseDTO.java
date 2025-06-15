@@ -75,9 +75,17 @@ public class TradeResponseDTO {
 	public void setUpdateAt(Instant updateAt) {
 		this.updateAt = updateAt;
 	}
-
+	
+	public void setUserProposerItems(List<TradeItemDTO> userProposerItems) {
+		this.userProposerItems = userProposerItems;
+	}
+	
 	public List<TradeItemDTO> getUserProposerItems() {
 		return userProposerItems;
+	}
+
+	public void setUserReceiverItems(List<TradeItemDTO> userReceiverItems) {
+		this.userReceiverItems = userReceiverItems;
 	}
 
 	public List<TradeItemDTO> getUserReceiverItems() {
