@@ -7,13 +7,14 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -31,8 +32,8 @@ public class CardCollections implements Serializable{
 	private User user;
 	
 	@JsonIgnore
-	@ManyToMany(mappedBy = "cardCollections")
-	private Set<Card> card = new HashSet<>();
+	@OneToMany(mappedBy = "cardCollection", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<CardInCollection> cardInCollection = new HashSet<>();
 	
 	public CardCollections() {
 	}
@@ -68,8 +69,8 @@ public class CardCollections implements Serializable{
 		this.user = user;
 	}
 	
-	public Set<Card> getCard() {
-		return card;
+	public Set<CardInCollection> getCard() {
+		return cardInCollection;
 	}
 
 	@Override

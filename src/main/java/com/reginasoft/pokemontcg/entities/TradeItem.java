@@ -30,6 +30,9 @@ public class TradeItem {
 	@ManyToOne(optional = false)
 	private CardCollections cardCollections;
 	
+	@ManyToOne(optional = false)
+	private CardInCollection cardInCollection;
+	
 	@Enumerated(EnumType.STRING)
 	private TradeSide userSide;
 	
@@ -74,6 +77,14 @@ public class TradeItem {
 
 	public void setCardCollections(CardCollections cardCollections) {
 		this.cardCollections = cardCollections;
+	}
+
+	public CardInCollection getCardInCollection() {
+		return cardInCollection;
+	}
+
+	public void setCardInCollection(CardInCollection cardInCollection) {
+		this.cardInCollection = cardInCollection;
 	}
 
 	public TradeSide getUserSide() {

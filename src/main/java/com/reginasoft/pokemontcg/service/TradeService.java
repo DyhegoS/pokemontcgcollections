@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.reginasoft.pokemontcg.dto.TradeItemDTO;
@@ -19,10 +18,14 @@ import com.reginasoft.pokemontcg.entities.User;
 import com.reginasoft.pokemontcg.entities.enums.TradeSide;
 import com.reginasoft.pokemontcg.entities.enums.TradeStatus;
 import com.reginasoft.pokemontcg.repositories.CardCollectionsRepository;
+import com.reginasoft.pokemontcg.repositories.CardInCollectionRepository;
 import com.reginasoft.pokemontcg.repositories.CardRepository;
 import com.reginasoft.pokemontcg.repositories.TradeItemRepository;
 import com.reginasoft.pokemontcg.repositories.TradeRepository;
 import com.reginasoft.pokemontcg.repositories.UserRepository;
+import com.reginasoft.pokemontcg.resources.exceptions.InvalidOperationException;
+import com.reginasoft.pokemontcg.resources.exceptions.NotFoundException;
+import com.reginasoft.pokemontcg.resources.exceptions.UnauthorizedException;
 
 import jakarta.transaction.Transactional;
 
@@ -33,16 +36,18 @@ public class TradeService {
 	private final UserRepository userRepository;
 	private final CardRepository cardRepository;
 	private final CardCollectionsRepository cardCollectionsRepository;
+	private final CardInCollectionRepository cardInCollectionRepository;
 	private final TradeItemRepository tradeItemRepository;
 	
 	@Autowired
 	public TradeService(TradeRepository tradeRepository, UserRepository userRepository, CardRepository cardRepository,
-			CardCollectionsRepository cardCollectionsRepository, TradeItemRepository tradeItemRepository) {
+			CardCollectionsRepository cardCollectionsRepository, CardInCollectionRepository cardInCollectionRepository, TradeItemRepository tradeItemRepository) {
 		super();
 		this.tradeRepository = tradeRepository;
 		this.userRepository = userRepository;
 		this.cardRepository = cardRepository;
 		this.cardCollectionsRepository = cardCollectionsRepository;
+		this.cardInCollectionRepository = cardInCollectionRepository;
 		this.tradeItemRepository = tradeItemRepository;
 	}
 
@@ -78,7 +83,6 @@ public class TradeService {
 	}
 	
 	
-
 	private void addTradeItem(Trade trade, TradeItemDTO itemDTO, TradeSide tradeSide) {
 		Card card = cardRepository.findById(itemDTO.getCardId())
 				.orElseThrow(() -> new NotFoundException("Card not found!"));
@@ -107,7 +111,7 @@ public class TradeService {
 				.orElseThrow(() -> new NotFoundException("Trade not found!"));
 		
 		if(!trade.getUserReceiver().getId().equals(userReceiverId)) {
-			throw new UnauthorizedExpection("You are not authorized to accept this trade.");
+			throw new UnauthorizedException("You are not authorized to accept this trade.");
 		}
 		
 		if(trade.getTradeStatus() != TradeStatus.PENDING) {
@@ -128,7 +132,7 @@ public class TradeService {
 	private void ValidateItems(List<TradeItem> items, User owner) {
 		for(TradeItem item : items) {
 			if(!item.getCardCollections().getUser().equals(owner) ||
-				!item.getCardCollections().getCard().contains(item.getCard())){
+				!item.getCardCollections().getCard().contains(item.getCardInCollection())){
 					throw new InvalidOperationException("Card " + item.getCard().getId() + " is no longer available.");
 				}
 		}
@@ -136,13 +140,13 @@ public class TradeService {
 	
 	private void ExecuteTrade(Trade trade) {
 		for(TradeItem item : trade.getUserProposerItems()) {
-			item.getCardCollections().getCard().remove(item.getCard());
-			trade.getUserReceiver().getCardCollections().get(0).getCard().add(item.getCard());
+			item.getCardCollections().getCard().remove(item.getCardInCollection());
+			trade.getUserReceiver().getCardCollections().get(0).getCard().add(item.getCardInCollection());
 		}
 		
 		for(TradeItem item : trade.getUserReceiverItems()) {
-			item.getCardCollections().getCard().remove(item.getCard());
-			trade.getUserProposer().getCardCollections().get(0).getCard().add(item.getCard());
+			item.getCardCollections().getCard().remove(item.getCardInCollection());
+			trade.getUserProposer().getCardCollections().get(0).getCard().add(item.getCardInCollection());
 		}
 	}
 	
@@ -176,7 +180,7 @@ public class TradeService {
         response.setUserReceiverId(trade.getUserReceiver().getId());
         response.setTradeStatus(trade.getTradeStatus().name());
         response.setCreatedAt(trade.getCreatedAt());
-        response.setUpdatedAt(trade.getUpdatedAt());
+        response.setUpdateAt(trade.getUpdateAt());
         response.setUserProposerItems(userProposerItems);
         response.setUserReceiverItems(userReceiverItems);
         return response;

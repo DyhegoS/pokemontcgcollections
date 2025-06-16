@@ -1,17 +1,12 @@
 package com.reginasoft.pokemontcg.entities;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,12 +24,6 @@ public class Card implements Serializable{
 	private String ability;
 	private String attack;
 	private String type;
-	
-	@ManyToMany
-	@JoinTable(name = "tb_card_cardcollection",
-	joinColumns = @JoinColumn(name = "card_id"),
-	inverseJoinColumns = @JoinColumn(name = "cardcollection_id"))
-	private Set<CardCollections> cardCollections = new HashSet<>();
 	
 	public Card() {
 	}
@@ -114,10 +103,6 @@ public class Card implements Serializable{
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public Set<CardCollections> getCardCollections() {
-		return cardCollections;
 	}
 
 	@Override
